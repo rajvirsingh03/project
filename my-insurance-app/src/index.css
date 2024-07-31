@@ -66,3 +66,26 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+
+
+
+
+
+
+/* styles.css */
+body {
+  background-color: #0a0f1a; /* Set the background color */
+  margin: 0;
+  font-family: 'Poppins', sans-serif; /* Use Poppins font */
+  color: #fff; /* Optional: set text color for better contrast */
+}
+
+.container {
+  background-color: #0a0f1a; /* Background color for the main content */
+  color: #fff; /* Text color */
+}
+
+h1, h2, h3, h4, h5, h6, p, a, label, input, button {
+  font-family: 'Poppins', sans-serif;
+}
