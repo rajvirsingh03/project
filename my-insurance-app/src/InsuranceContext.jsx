@@ -95,10 +95,10 @@ const InsuranceProvider = ({ children }) => {
     }
   };
 
-  const payPremium = async (groupIndex) => {
+  const payPremium = async (groupIndex, premiumAmount) => {
     if (contract) {
       try {
-        const tx = await contract.payPremium(groupIndex, { value: ethers.utils.parseEther('0.05') });
+        const tx = await contract.payPremium(groupIndex, { value: ethers.utils.parseEther(premiumAmount) });
         await tx.wait();
       } catch (error) {
         console.error('Error paying premium:', error);
@@ -164,6 +164,19 @@ const InsuranceProvider = ({ children }) => {
     }
   };
 
+  // Implementing the numUsersInGroup function
+  const numUsersInGroup = async (groupIndex) => {
+    if (contract) {
+      try {
+        const numUsers = await contract.numUsersInGroup(groupIndex);
+        return numUsers.toNumber(); // Convert BigNumber to a number
+      } catch (error) {
+        console.error('Error fetching number of users in group:', error);
+        return 0;
+      }
+    }
+  };
+
   return (
     <InsuranceContext.Provider
       value={{
@@ -179,6 +192,7 @@ const InsuranceProvider = ({ children }) => {
         fetchClaimFromGroupByIndex,
         getGroupBalance,
         GroupCount,
+        numUsersInGroup, // Add numUsersInGroup to context
       }}
     >
       {children}
