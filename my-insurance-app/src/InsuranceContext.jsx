@@ -9,13 +9,13 @@ const InsuranceProvider = ({ children }) => {
   const [signer, setSigner] = useState(null);
   const [contract, setContract] = useState(null);
 
-  const contractAddress = '0x3A90C4013Fd28f10A56A1Cf1cA3c1B48D88875BF';
+  const contractAddress = '0x2712190e10f425FD35756A5b5FC0E3BA1c1021b8';
 
   const initProvider = async () => {
     if (window.ethereum) {
-      const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+      const web3Provider = new ethers.BrowserProvider(window.ethereum);
       setProvider(web3Provider);
-      const web3Signer = web3Provider.getSigner();
+      const web3Signer = await web3Provider.getSigner();
       setSigner(web3Signer);
       const insuranceContract = new ethers.Contract(contractAddress, InsuranceABI, web3Signer);
       setContract(insuranceContract);
@@ -31,7 +31,7 @@ const InsuranceProvider = ({ children }) => {
   const addBalanceAsInvestor = async (amount) => {
     if (contract) {
       try {
-        const tx = await contract.addBalanceAsInvestor({ value: ethers.utils.parseEther(amount) });
+        const tx = await contract.addBalanceAsInvestor({ value: ethers.parseEther(amount) });
         await tx.wait();
       } catch (error) {
         console.error('Error adding balance:', error);
@@ -39,10 +39,10 @@ const InsuranceProvider = ({ children }) => {
     }
   };
 
-  const registerAsInvestor = async () => {
+  const registerAsInvestor = async (amount) => {
     if (contract) {
       try {
-        const tx = await contract.registerAsInvestor({ value: ethers.utils.parseEther('0.1') });
+        const tx = await contract.registerAsInvestor({ value: ethers.parseEther(amount) });
         await tx.wait();
       } catch (error) {
         console.error('Error registering as investor:', error);
@@ -53,7 +53,7 @@ const InsuranceProvider = ({ children }) => {
   const withdrawAsInvestor = async (amount) => {
     if (contract) {
       try {
-        const tx = await contract.withdrawAsInvestor(ethers.utils.parseEther(amount));
+        const tx = await contract.withdrawAsInvestor(ethers.parseEther(amount));
         await tx.wait();
       } catch (error) {
         console.error('Error withdrawing:', error);
@@ -65,7 +65,7 @@ const InsuranceProvider = ({ children }) => {
     if (contract) {
       try {
         const balance = await contract.getInvestorBalance();
-        return ethers.utils.formatEther(balance);
+        return ethers.formatEther(balance);
       } catch (error) {
         console.error('Error fetching balance:', error);
         return '0';
@@ -73,10 +73,10 @@ const InsuranceProvider = ({ children }) => {
     }
   };
 
-  const createInsuranceGroup = async () => {
+  const createInsuranceGroup = async (amt) => {
     if (contract) {
       try {
-        const tx = await contract.createInsuranceGroup({ value: ethers.utils.parseEther('1') });
+        const tx = await contract.createInsuranceGroup({ value: ethers.parseEther(amt) });
         await tx.wait();
       } catch (error) {
         console.error('Error creating insurance group:', error);
@@ -87,7 +87,8 @@ const InsuranceProvider = ({ children }) => {
   const registerForGroup = async (groupIndex) => {
     if (contract) {
       try {
-        const tx = await contract.registerForGroup(groupIndex, { value: ethers.utils.parseEther('0.1') });
+        const amt='0.001';
+        const tx = await contract.registerForGroup(groupIndex, { value: ethers.parseEther(amt) });
         await tx.wait();
       } catch (error) {
         console.error('Error registering for group:', error);
@@ -95,21 +96,23 @@ const InsuranceProvider = ({ children }) => {
     }
   };
 
-  const payPremium = async (groupIndex, premiumAmount) => {
+  const payPremium = async (groupIndex) => {
     if (contract) {
       try {
-        const tx = await contract.payPremium(groupIndex, { value: ethers.utils.parseEther(premiumAmount) });
+        const amt='0.001';
+        const tx = await contract.payPremium(groupIndex, { value: ethers.parseEther(amt) });
         await tx.wait();
       } catch (error) {
         console.error('Error paying premium:', error);
       }
     }
   };
+  
 
   const submitClaim = async (groupIndex, amount, textHash, fileHash) => {
     if (contract) {
       try {
-        const tx = await contract.submitClaim(groupIndex, ethers.utils.parseEther(amount), textHash, fileHash);
+        const tx = await contract.submitClaim(groupIndex, ethers.parseEther(amount), textHash, fileHash);
         await tx.wait();
       } catch (error) {
         console.error('Error submitting claim:', error);
@@ -144,7 +147,7 @@ const InsuranceProvider = ({ children }) => {
     if (contract) {
       try {
         const balance = await contract.getGroupBalance(groupIndex);
-        return ethers.utils.formatEther(balance);
+        return ethers.formatEther(balance);
       } catch (error) {
         console.error('Error fetching group balance:', error);
         return '0';
@@ -164,12 +167,11 @@ const InsuranceProvider = ({ children }) => {
     }
   };
 
-  // Implementing the numUsersInGroup function
   const numUsersInGroup = async (groupIndex) => {
     if (contract) {
       try {
         const numUsers = await contract.numUsersInGroup(groupIndex);
-        return numUsers.toNumber(); // Convert BigNumber to a number
+        return numUsers.toNumber();
       } catch (error) {
         console.error('Error fetching number of users in group:', error);
         return 0;
@@ -192,7 +194,7 @@ const InsuranceProvider = ({ children }) => {
         fetchClaimFromGroupByIndex,
         getGroupBalance,
         GroupCount,
-        numUsersInGroup, // Add numUsersInGroup to context
+        numUsersInGroup,
       }}
     >
       {children}

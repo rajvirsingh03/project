@@ -8,6 +8,7 @@ const InvestorPage = () => {
   const [claimIndex, setClaimIndex] = useState('');
 
   const handleRegister = async () => {
+    console.log(investmentAmount);
     await registerAsInvestor(investmentAmount);
   };
 

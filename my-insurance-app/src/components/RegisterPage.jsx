@@ -1,41 +1,29 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState } from 'react';
 import { InsuranceContext } from '../InsuranceContext.jsx';
 
 const RegisterPage = () => {
-  const { registerForGroup, payPremium, numUsersInGroup, getGroupBalance } = useContext(InsuranceContext);
+  const { registerForGroup, payPremium, getGroupBalance, GroupCount } = useContext(InsuranceContext);
   const [groupIndex, setGroupIndex] = useState('');
   const [premiumAmount, setPremiumAmount] = useState('');
-  const [numUsers, setNumUsers] = useState(null);
-  const [groupBalance, setGroupBalance] = useState(null);
+  const [groupBalance, setGroupBalance] = useState('0');
+  const [userCount, setUserCount] = useState(0);
 
   const handleRegister = async () => {
     await registerForGroup(groupIndex);
-    // Optionally, refresh group details after registration
-    fetchGroupDetails();
+    updateGroupDetails();
   };
 
   const handlePayPremium = async () => {
-    await payPremium(groupIndex, premiumAmount);
-    // Optionally, refresh group details after paying premium
-    fetchGroupDetails();
+    await payPremium(groupIndex);
+    updateGroupDetails();
   };
 
-  const fetchGroupDetails = async () => {
-    if (groupIndex) {
-      try {
-        const users = await numUsersInGroup(groupIndex);
-        const balance = await getGroupBalance(groupIndex);
-        setNumUsers(users);
-        setGroupBalance(balance);
-      } catch (error) {
-        console.error('Error fetching group details:', error);
-      }
-    }
+  const updateGroupDetails = async () => {
+    const balance = await getGroupBalance(groupIndex);
+    setGroupBalance(balance);
+    const count = await GroupCount();
+    setUserCount(count);
   };
-
-  useEffect(() => {
-    fetchGroupDetails();
-  }, [groupIndex]);
 
   return (
     <div className="container">
@@ -50,7 +38,7 @@ const RegisterPage = () => {
         <button onClick={handleRegister}>Register</button>
       </div>
       <div className="form-group">
-        <label>Premium Amount (ETH):</label>
+        <label>Enter Group Index value to pay Premium Amount (ETH):</label>
         <input
           type="number"
           value={premiumAmount}
@@ -60,8 +48,8 @@ const RegisterPage = () => {
       </div>
       <div className="form-group">
         <h2>Group Details</h2>
-        <p>Number of Users: {numUsers !== null ? numUsers : '0'}</p>
-        <p>Group Balance (ETH): {groupBalance !== null ? groupBalance : '0'}</p>
+        <p>Number of Users: {userCount}</p>
+        <p>Group Balance (ETH): {groupBalance}</p>
       </div>
     </div>
   );
